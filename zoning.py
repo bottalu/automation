@@ -13,6 +13,18 @@ window.resizable(False, False)
 
 ############################################ FUNZIONI PRINCIPALI ########################################
 
+def get_input():
+
+    clear_single_box(T)
+    e0_input = e0.get(1.0,"end-1c")
+    e1_input = e1.get(1.0, "end-1c")
+    e2_input = e2.get(1.0, "end-1c")
+    e3_input = e3.get(1.0, "end-1c")
+    
+    check_input = [e0_input, e1_input, e2_input, e3_input]
+        
+    return check_input
+
 def start():
 
     begin = get_input()
@@ -21,11 +33,11 @@ def start():
     mex = ""
     check = all(ele != "" for ele in begin)
     
-    if not begin[0].isnumeric():
+    if not begin[0].isnumeric() or begin[0] < "2" or begin[0] > "4093":
 
-        mex = f'Please insert a correct vSAN ID. \nUser defined vSANs are available from 2 to 4096.'
+        mex = f'Please insert a correct vSAN ID. \nUser defined vSANs are available from 2 to 4093.'
         tk.messagebox.showerror("Input error", mex)
-    
+   
     if begin[0].isnumeric() and check == True:
         
         T.config(state="normal")
@@ -47,9 +59,40 @@ def start():
      
         clear_single_box(T)
 
+def create_zoning(start_list):
+
+    vsan_id = start_list[0]
+    initiators = start_list[1]
+    target = start_list[2] 
+    zoneset = start_list[3]
+    zone_list = []
+    
+    output_zone = ""
+    word1 = '"Your Initiator"'
+    word2 = '"Your Target"'
+    initiators, check_1 = test_input(initiators, word1)
+    target, check_2 = test_input(target, word2)
+
+    if check_1 == 0 and check_2 == 0:
+
+        all_wwpn = initiators + target
+
+        for i in range(len(initiators)):
+
+            zone_config, zone = create_zone(initiators[i][0], target, vsan_id)
+            output_zone = f'{output_zone} {zone_config}'
+            zone_list.append(zone)
+
+    output_zoneset = add_zone_to_zoneset(zone_list, zoneset, vsan_id)
+    output_wwpn = create_alias(all_wwpn)
+    output_zoneset = add_zone_to_zoneset(zone_list, zoneset, vsan_id)
+    
+    print_output(output_wwpn)
+    print_output(output_zone)
+    print_output(output_zoneset)
+
 def test_input(a, label):
 
-    #a = e1.get(1.0, tk.END)
     array = a.splitlines()
     array_splitted = [i.split() for i in array]
     x = 0
@@ -79,20 +122,8 @@ def test_input(a, label):
             case = 0
                                
         x += 1
-    return  wwpn_list, case
-    #tk.messagebox.showinfo("Output", wwpn_list)   
-
-def get_input():
-
-    clear_single_box(T)
-    e0_input = e0.get(1.0,"end-1c")
-    e1_input = e1.get(1.0, "end-1c")
-    e2_input = e2.get(1.0, "end-1c")
-    e3_input = e3.get(1.0, "end-1c")
     
-    check_input = [e0_input, e1_input, e2_input, e3_input]
-        
-    return check_input
+    return  wwpn_list, case  
 
 def create_alias(array):
 
@@ -105,6 +136,7 @@ def create_alias(array):
         str0 = f' {str0} \n device-alias name {alias} pwwn {pwwn}'
        
     command = f'configure \ndevice alias database {str0} \n device-alias commit'
+    
     return command
 
 def create_zone(alias_initiator, array_target, id):
@@ -122,50 +154,7 @@ def create_zone(alias_initiator, array_target, id):
     command = f'\n\nconfigure \nzone name {zone_name} vsan {id} {str0}'
                 
     return command, zone_name
-
-def print_output(out):
     
-    out = str(out)
-    T.config(state="normal", bg="#32cd32", fg="White")
-    T.insert(tk.INSERT, out)
-
-def clear_single_box(x):
-
-    x.delete(1.0, tk.END)
-    x.config(state="disabled", bg="white")   
-    
-def create_zoning(start_list):
-
-    vsan_id = start_list[0]
-    initiators = start_list[1]
-    target = start_list[2] 
-    zoneset = start_list[3]
-    
-    zone_list = []
-    output_zone = ""
-    word1 = '"Your Initiator"'
-    word2 = '"Your Target"'
-    initiators, check_1 = test_input(initiators, word1)
-    target, check_2 = test_input(target, word2)
-
-    if check_1 == 0 and check_2 == 0:
-
-        all_wwpn = initiators + target
-
-        for i in range(len(initiators)):
-
-            zone_config, zone = create_zone(initiators[i][0], target, vsan_id)
-            output_zone = f'{output_zone} {zone_config}'
-            zone_list.append(zone)
-
-        output_zoneset = add_zone_to_zoneset(zone_list, zoneset, vsan_id)
-        output_wwpn = create_alias(all_wwpn)
-        output_zoneset = add_zone_to_zoneset(zone_list, zoneset, vsan_id)
-
-        print_output(output_wwpn)
-        print_output(output_zone)
-        print_output(output_zoneset)
-
 def add_zone_to_zoneset(array_zone, zsname, vs_id):
 
     member = ""
@@ -181,6 +170,17 @@ def add_zone_to_zoneset(array_zone, zsname, vs_id):
 def create_smartzoning():
 
     tk.messagebox.showerror("Input error", "The feature will be developed as soon as possible... :(")
+
+def print_output(out):
+    
+    out = str(out)
+    T.config(state="normal", bg="#32cd32", fg="White")
+    T.insert(tk.INSERT, out)
+
+def clear_single_box(x):
+
+    x.delete(1.0, tk.END)
+    x.config(state="disabled", bg="white")   
         
 def clear_all():
 
