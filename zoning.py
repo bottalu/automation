@@ -33,12 +33,12 @@ def start():
     mex = ""
     check = all(ele != "" for ele in begin)
     
-    if not begin[0].isnumeric() or begin[0] < "2" or begin[0] > "4093":
+    if not begin[0].isnumeric() or int(begin[0]) < 2 or int(begin[0]) > 4093:
 
         mex = f'Please insert a correct vSAN ID. \nUser defined vSANs are available from 2 to 4093.'
         tk.messagebox.showerror("Input error", mex)
    
-    if begin[0].isnumeric() and check == True:
+    if int(begin[0]) > 2 and int(begin[0]) < 4094 and check == True:
         
         T.config(state="normal")
         create_zoning(begin)
@@ -271,15 +271,4 @@ if __name__ == "__main__":
 # TO CREATE EXECUTABLE FILE USE THE FOLLOWING TOOL: pyinstaller zoning.py --noconsole --onefile
 # 
 # 
-#           
-
-                    
-
-
-
-
-
-
-
-
-
+#
