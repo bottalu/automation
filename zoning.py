@@ -266,9 +266,3 @@ if __name__ == "__main__":
 #############################################################################################
 ###################TIPS######################################################################
 #zone = simpledialog.askstring("input string", "Enter value")   input con popup box
-#
-# 
-# TO CREATE EXECUTABLE FILE USE THE FOLLOWING TOOL: pyinstaller zoning.py --noconsole --onefile
-# 
-# 
-#
